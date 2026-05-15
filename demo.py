@@ -28,14 +28,14 @@ LANGUAGE_CHOICES = {
 
 # Example inputs for different languages
 EXAMPLES = [
-    ["The total cost is $31 for 3 items, ordered on 01/15/2024.", None, "en"],
-    ["She was born on 1984-06-15 and is the 3rd of 5 children.", None, "en"],
-    ["The temperature reached 98.6°F, which is 37% above normal.", None, "en"],
-    ["Call us at 555-0123 for a 50% discount on orders over $1,000.", None, "en"],
-    ["El precio es €500 por 2 unidades, con un 15% de descuento.", None, "es"],
-    ["Le rendez-vous est le 15/03/2024 à 14:30.", None, "fr"],
-    ["Der Preis beträgt €1.500 für 3 Artikel.", None, "de"],
-    ["Il costo è €200 per 4 articoli, con il 10% di sconto.", None, "it"],
+    ["The total cost is $31 for 3 items, ordered on 01/15/2024.", None, "English (en)"],
+    ["She was born on 1984-06-15 and is the 3rd of 5 children.", None, "English (en)"],
+    ["The temperature reached 98.6°F, which is 37% above normal.", None, "English (en)"],
+    ["Call us at 555-0123 for a 50% discount on orders over $1,000.", None, "English (en)"],
+    ["El precio es €500 por 2 unidades, con un 15% de descuento.", None, "Spanish (es)"],
+    ["Le rendez-vous est le 15/03/2024 à 14:30.", None, "French (fr)"],
+    ["Der Preis beträgt €1.500 für 3 Artikel.", None, "German (de)"],
+    ["Il costo è €200 per 4 articoli, con il 10% di sconto.", None, "Italian (it)"],
 ]
 
 
@@ -158,31 +158,6 @@ def build_demo():
 
     with gr.Blocks(
         title="Speech Number Normalizer",
-        theme=gr.themes.Soft(
-            primary_hue="blue",
-            secondary_hue="slate",
-        ),
-        css="""
-        .main-title {
-            text-align: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 2.5em;
-            font-weight: 800;
-            margin-bottom: 0.2em;
-        }
-        .subtitle {
-            text-align: center;
-            color: #6b7280;
-            font-size: 1.1em;
-            margin-bottom: 1.5em;
-        }
-        .output-box {
-            font-size: 1.15em;
-            line-height: 1.6;
-        }
-        """,
     ) as demo:
         gr.HTML("""
             <div class="main-title">🔢 Speech Number Normalizer</div>
@@ -262,8 +237,35 @@ def build_demo():
 
 if __name__ == "__main__":
     demo = build_demo()
+    theme = gr.themes.Soft(
+        primary_hue="blue",
+        secondary_hue="slate",
+    )
+    css = """
+    .main-title {
+        text-align: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 2.5em;
+        font-weight: 800;
+        margin-bottom: 0.2em;
+    }
+    .subtitle {
+        text-align: center;
+        color: #6b7280;
+        font-size: 1.1em;
+        margin-bottom: 1.5em;
+    }
+    .output-box {
+        font-size: 1.15em;
+        line-height: 1.6;
+    }
+    """
     demo.launch(
         server_name="0.0.0.0",
         server_port=7860,
         share=False,
+        theme=theme,
+        css=css,
     )
