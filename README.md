@@ -1,5 +1,7 @@
 # 🔢 Speech Number Normalizer
 
+**GitHub Repository:** [https://github.com/Aman-byte1/Speech-Number-Normalizer](https://github.com/Aman-byte1/Speech-Number-Normalizer)
+
 **Multilingual speech number normalization**: Given a (speech, text) pair, convert numbers in text to the form spoken in the audio. Designed for preprocessing massive multilingual TTS/voice-conversion training datasets.
 
 ## Table of Contents
@@ -10,6 +12,7 @@
   - [Python API](#python-api)
   - [Command Line](#command-line)
   - [Gradio Demo](#gradio-demo)
+  - [Evaluation](#evaluation)
 - [Algorithm Design](#algorithm-design)
   - [Architecture Overview](#architecture-overview)
   - [Stage 1: Number Detection](#stage-1-number-detection)
@@ -47,7 +50,7 @@ python demo.py
 
 ```bash
 # Clone the repository
-git clone <repo-url>
+git clone https://github.com/Aman-byte1/Speech-Number-Normalizer.git
 cd word_totext
 
 # Install dependencies
@@ -132,6 +135,19 @@ python -m speech_number_norm.normalizer "El precio es €500" -l es --no-audio
 ```bash
 python demo.py
 # Opens at http://localhost:7860
+```
+
+### Evaluation
+
+An evaluation script `evaluate.py` is included to benchmark the system using the LibriSpeech dataset. It performs a "closed-loop" evaluation by:
+1. Loading a sample of normalized speech (words).
+2. Denormalizing it back to digits (e.g., "twenty two" -> "22").
+3. Running the normalizer to see if it can recover the original spoken form using the audio.
+
+```bash
+# Run evaluation (requires datasets and word2number libraries)
+pip install datasets word2number
+python evaluate.py
 ```
 
 The demo provides:

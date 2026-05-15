@@ -1,10 +1,5 @@
-"""
-Utility functions for audio loading, text cleaning, and common operations.
-"""
-
 import re
 from typing import Optional, Tuple
-
 import torch
 
 
@@ -12,16 +7,7 @@ def load_audio(
     path: str,
     target_sr: int = 16000,
 ) -> Tuple[torch.Tensor, int]:
-    """
-    Load an audio file and resample to target sample rate.
-    
-    Args:
-        path: Path to audio file (WAV, MP3, FLAC, etc.)
-        target_sr: Target sample rate (default 16kHz for MMS).
-        
-    Returns:
-        Tuple of (waveform tensor [1, T], sample_rate).
-    """
+    """Load an audio file and resample to target sample rate."""
     import torchaudio
 
     waveform, sr = torchaudio.load(path)
@@ -40,24 +26,13 @@ def load_audio(
 
 
 def clean_text(text: str) -> str:
-    """
-    Basic text normalization: collapse whitespace, strip edges.
-    Preserves case and punctuation since they may be relevant.
-    """
+    """Basic text normalization: collapse whitespace, strip edges."""
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
 
 def romanize_text(text: str) -> str:
-    """
-    Romanize non-Latin text for MMS forced alignment.
-    
-    MMS forced alignment expects Latin characters. For non-Latin scripts,
-    we use a simple transliteration. For production use, the `uroman`
-    tool from Meta is recommended.
-    
-    This is a lightweight fallback that handles common cases.
-    """
+    """Romanize non-Latin text for MMS forced alignment."""
     # Check if text is already mostly Latin
     latin_chars = sum(1 for c in text if c.isascii() and c.isalpha())
     total_chars = sum(1 for c in text if c.isalpha())
@@ -78,15 +53,7 @@ def romanize_text(text: str) -> str:
 
 
 def get_device(preferred: str = "auto") -> torch.device:
-    """
-    Get the best available device.
-    
-    Args:
-        preferred: "auto", "cuda", "cpu", or specific device string.
-        
-    Returns:
-        torch.device object.
-    """
+    """Get the best available device."""
     if preferred == "auto":
         if torch.cuda.is_available():
             return torch.device("cuda")
@@ -100,21 +67,7 @@ def estimate_number_audio_region(
     span_end: int,
     total_audio_duration: float,
 ) -> Tuple[float, float]:
-    """
-    Estimate the time region in audio where a number span is likely spoken.
-    
-    Uses a simple proportional estimation based on character position.
-    This provides a rough region for targeted scoring, reducing computation.
-    
-    Args:
-        text: Full text string.
-        span_start: Start character index of the number span.
-        span_end: End character index of the number span.
-        total_audio_duration: Total audio duration in seconds.
-        
-    Returns:
-        Tuple of (start_time, end_time) in seconds, with padding.
-    """
+    """Estimate the time region in audio where a number span is likely spoken."""
     text_len = max(len(text), 1)
 
     # Proportional position

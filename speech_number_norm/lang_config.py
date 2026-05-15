@@ -1,46 +1,31 @@
-"""
-Language-specific configuration for number normalization.
-
-Defines per-language settings for currency symbols, date formats,
-decimal/thousands separators, and other locale-specific patterns.
-"""
-
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
 
 
 @dataclass
 class CurrencyInfo:
-    """Info about a currency symbol."""
     symbol: str
-    code: str           # ISO 4217 code used by num2words
-    name_singular: str  # e.g. "dollar"
-    name_plural: str    # e.g. "dollars"
-    subunit_singular: str = ""  # e.g. "cent"
-    subunit_plural: str = ""    # e.g. "cents"
-    symbol_before: bool = True  # True if symbol comes before number ($100 vs 100€)
+    code: str
+    name_singular: str
+    name_plural: str
+    subunit_singular: str = ""
+    subunit_plural: str = ""
+    symbol_before: bool = True
 
 
 @dataclass
 class LanguageConfig:
-    """Per-language configuration for number normalization."""
-    code: str                        # ISO 639-1 code
-    name: str                        # Human-readable name
-    num2words_lang: str              # Code used by num2words library
-    decimal_separator: str = "."     # "." or ","
-    thousands_separator: str = ","   # "," or "." or " "
-    date_format: str = "MDY"         # MDY, DMY, or YMD
+    code: str
+    name: str
+    num2words_lang: str
+    decimal_separator: str = "."
+    thousands_separator: str = ","
+    date_format: str = "MDY"
     currencies: List[CurrencyInfo] = field(default_factory=list)
-    ordinal_suffixes: List[str] = field(default_factory=list)  # e.g. ["st", "nd", "rd", "th"]
-    and_word: str = ""               # Word for "and" in number speech (e.g. "and" in English)
-    point_word: str = ""             # Word for decimal point
-    # MMS language code for forced alignment (uroman-based, usually same as ISO)
+    ordinal_suffixes: List[str] = field(default_factory=list)
+    and_word: str = ""
+    point_word: str = ""
     mms_lang: str = ""
-
-
-# ---------------------------------------------------------------------------
-# Currency database (most common currencies by symbol)
-# ---------------------------------------------------------------------------
 
 CURRENCIES_GLOBAL: Dict[str, CurrencyInfo] = {
     "$": CurrencyInfo("$", "USD", "dollar", "dollars", "cent", "cents", True),
@@ -58,11 +43,6 @@ CURRENCIES_GLOBAL: Dict[str, CurrencyInfo] = {
     "ETB": CurrencyInfo("ETB", "ETB", "birr", "birr", "santim", "santim", True),
     "Br": CurrencyInfo("Br", "ETB", "birr", "birr", "santim", "santim", True),
 }
-
-
-# ---------------------------------------------------------------------------
-# Language configurations
-# ---------------------------------------------------------------------------
 
 LANGUAGE_CONFIGS: Dict[str, LanguageConfig] = {
     "en": LanguageConfig(
@@ -267,10 +247,7 @@ LANGUAGE_CONFIGS: Dict[str, LanguageConfig] = {
 
 
 def get_config(lang: str) -> LanguageConfig:
-    """
-    Get language configuration, falling back to English defaults
-    if the language is not explicitly configured.
-    """
+    """Get language configuration with fallback to defaults."""
     if lang in LANGUAGE_CONFIGS:
         return LANGUAGE_CONFIGS[lang]
 

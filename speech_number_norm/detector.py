@@ -1,11 +1,3 @@
-"""
-Number span detection in text.
-
-Uses regex patterns to find and classify numeric expressions:
-currencies, percentages, dates, times, ordinals, decimals, cardinals,
-and digit sequences (phone numbers, codes).
-"""
-
 import re
 from dataclasses import dataclass
 from enum import Enum, auto
@@ -15,63 +7,42 @@ from speech_number_norm.lang_config import get_config, LanguageConfig
 
 
 class NumberCategory(Enum):
-    """Classification of detected number spans."""
-    CARDINAL = auto()       # 42, 1000, 1,000,000
-    ORDINAL = auto()        # 1st, 2nd, 3rd, 21st
-    CURRENCY = auto()       # $31, €500, £50.99
-    PERCENTAGE = auto()     # 50%, 3.5%
-    DECIMAL = auto()        # 3.14, 0.5
-    DATE = auto()           # 2024-01-15, 01/15/2024
-    TIME = auto()           # 3:30, 14:00
-    YEAR = auto()           # 1984, 2024 (standalone 4-digit)
-    PHONE = auto()          # 555-0123, digit sequences with dashes
-    DIGIT_SEQUENCE = auto() # Other sequences best read digit-by-digit
+    CARDINAL = auto()
+    ORDINAL = auto()
+    CURRENCY = auto()
+    PERCENTAGE = auto()
+    DECIMAL = auto()
+    DATE = auto()
+    TIME = auto()
+    YEAR = auto()
+    PHONE = auto()
+    DIGIT_SEQUENCE = auto()
 
 
 @dataclass
 class NumberSpan:
-    """A detected numeric expression in text."""
-    start: int              # Start character index in original text
-    end: int                # End character index in original text
-    raw_text: str           # Original text of the span (e.g. "$31")
+    start: int
+    end: int
+    raw_text: str
     category: NumberCategory
-    value: Optional[float] = None          # Parsed numeric value (if applicable)
-    parts: Optional[dict] = None           # Structured parts (for dates, times, currencies)
+    value: Optional[float] = None
+    parts: Optional[dict] = None
 
     def __repr__(self):
         return f"NumberSpan({self.raw_text!r}, {self.category.name}, val={self.value})"
 
 
 class NumberDetector:
-    """
-    Detects numeric expressions in text and classifies them.
-    
-    Uses a priority-ordered set of regex patterns. More specific patterns
-    (currency, date) are checked before generic ones (cardinal) to avoid
-    partial matches.
-    """
+    """Detects numeric expressions in text and classifies them."""
 
-    # ---------------------------------------------------------------
-    # Currency symbols (escaped for regex)
-    # ---------------------------------------------------------------
     _CURRENCY_SYMBOLS = r"[\$€£¥₹₽₩₪฿]"
     _CURRENCY_CODES = r"(?:USD|EUR|GBP|JPY|INR|RUB|KRW|ILS|THB|ZAR|SEK|CHF|ETB|CAD|AUD|NZD|BRL|CNY|MXN|SGD)"
 
     def __init__(self):
-        """Initialize patterns. Patterns are compiled once and reused."""
         self._patterns = self._build_patterns()
 
     def detect(self, text: str, language: str = "en") -> List[NumberSpan]:
-        """
-        Detect all numeric expressions in text.
-        
-        Args:
-            text: Input text to scan.
-            language: ISO 639-1 language code.
-            
-        Returns:
-            List of NumberSpan objects sorted by position, non-overlapping.
-        """
+        """Detect all numeric expressions in text."""
         config = get_config(language)
         spans: List[NumberSpan] = []
 
@@ -88,14 +59,9 @@ class NumberDetector:
         return spans
 
     def _build_patterns(self) -> List[Tuple[NumberCategory, re.Pattern]]:
-        """
-        Build regex patterns in priority order.
-        Higher priority patterns are listed first and win on overlap.
-        """
         patterns = []
 
-        # ----- CURRENCY (highest priority) -----
-        # Symbol before: $31, $1,000.50, €500
+        # Currency
         patterns.append((
             NumberCategory.CURRENCY,
             re.compile(
@@ -103,7 +69,6 @@ class NumberDetector:
                 re.UNICODE
             )
         ))
-        # Symbol after: 500€, 1000₽
         patterns.append((
             NumberCategory.CURRENCY,
             re.compile(
@@ -111,7 +76,6 @@ class NumberDetector:
                 re.UNICODE
             )
         ))
-        # Currency code: USD 500, 500 EUR
         patterns.append((
             NumberCategory.CURRENCY,
             re.compile(
@@ -121,7 +85,7 @@ class NumberDetector:
             )
         ))
 
-        # ----- PERCENTAGE -----
+        # Percentage
         patterns.append((
             NumberCategory.PERCENTAGE,
             re.compile(
@@ -130,23 +94,15 @@ class NumberDetector:
             )
         ))
 
-        # ----- DATE (ISO format: 2024-01-15) -----
+        # Dates
         patterns.append((
             NumberCategory.DATE,
-            re.compile(
-                r"(\d{4})-(\d{1,2})-(\d{1,2})",
-                re.UNICODE
-            )
+            re.compile(r"(\d{4})-(\d{1,2})-(\d{1,2})", re.UNICODE)
         ))
-        # Date with slashes: 01/15/2024 or 15/01/2024
         patterns.append((
             NumberCategory.DATE,
-            re.compile(
-                r"(\d{1,2})/(\d{1,2})/(\d{2,4})",
-                re.UNICODE
-            )
+            re.compile(r"(\d{1,2})/(\d{1,2})/(\d{2,4})", re.UNICODE)
         ))
-        # Date with month name: Jan 15, 2024 or 15 January 2024
         patterns.append((
             NumberCategory.DATE,
             re.compile(
@@ -161,7 +117,7 @@ class NumberDetector:
             )
         ))
 
-        # ----- TIME -----
+        # Time
         patterns.append((
             NumberCategory.TIME,
             re.compile(
@@ -170,7 +126,7 @@ class NumberDetector:
             )
         ))
 
-        # ----- ORDINAL -----
+        # Ordinal
         patterns.append((
             NumberCategory.ORDINAL,
             re.compile(
@@ -179,7 +135,7 @@ class NumberDetector:
             )
         ))
 
-        # ----- PHONE / DIGIT SEQUENCE (with dashes or spaces between digit groups) -----
+        # Phone / Sequences
         patterns.append((
             NumberCategory.PHONE,
             re.compile(
@@ -188,16 +144,13 @@ class NumberDetector:
             )
         ))
 
-        # ----- DECIMAL -----
+        # Decimal
         patterns.append((
             NumberCategory.DECIMAL,
-            re.compile(
-                r"\b(\d+)\.(\d+)\b",
-                re.UNICODE
-            )
+            re.compile(r"\b(\d+)\.(\d+)\b", re.UNICODE)
         ))
 
-        # ----- YEAR (standalone 4-digit number that looks like a year) -----
+        # Year
         patterns.append((
             NumberCategory.YEAR,
             re.compile(
@@ -206,7 +159,7 @@ class NumberDetector:
             )
         ))
 
-        # ----- CARDINAL (plain integers with optional thousands separators) -----
+        # Cardinal
         patterns.append((
             NumberCategory.CARDINAL,
             re.compile(

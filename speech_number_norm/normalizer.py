@@ -1,22 +1,9 @@
-"""
-Main pipeline: SpeechNumberNormalizer.
-
-Orchestrates the full normalization pipeline:
-  1. Detect number spans in text
-  2. Generate candidate verbalizations for each span
-  3. Score candidates against audio (if provided)
-  4. Replace number spans with best-scoring candidates
-
-Supports both audio-guided normalization and text-only mode.
-"""
-
 import argparse
 import logging
 import os
 import time
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
-
 import torch
 
 from speech_number_norm.candidates import CandidateGenerator
@@ -30,43 +17,18 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class NormalizationResult:
-    """Result of normalizing a single (text, audio) pair."""
     original_text: str
     normalized_text: str
     language: str
     spans: List[NumberSpan]
-    replacements: List[dict]  # {span, candidates, scores, chosen}
-    processing_time: float    # seconds
+    replacements: List[dict]
+    processing_time: float
 
 
 class SpeechNumberNormalizer:
-    """
-    Main entry point for speech number normalization.
-    
-    Usage:
-        normalizer = SpeechNumberNormalizer(device="cuda")
-        result = normalizer.normalize(
-            text="The price is $31 for 2 items",
-            audio_path="utterance.wav",
-            language="en"
-        )
-        print(result.normalized_text)
-        # "The price is thirty one dollars for two items"
-    """
+    """Main entry point for speech number normalization."""
 
-    def __init__(
-        self,
-        device: str = "auto",
-        use_audio: bool = True,
-    ):
-        """
-        Initialize the normalizer.
-        
-        Args:
-            device: Device for audio model ('auto', 'cuda', 'cpu').
-            use_audio: If True, use CTC scorer with audio.
-                      If False, use heuristic scoring (text-only mode).
-        """
+    def __init__(self, device: str = "auto", use_audio: bool = True):
         self.detector = NumberDetector()
         self.candidate_gen = CandidateGenerator()
         self.use_audio = use_audio
@@ -84,18 +46,7 @@ class SpeechNumberNormalizer:
         audio_path: Optional[str] = None,
         language: str = "en",
     ) -> NormalizationResult:
-        """
-        Normalize numbers in text to their spoken form.
-        
-        Args:
-            text: Input text containing numbers in written form.
-            audio_path: Path to the corresponding audio file.
-                       If None, uses heuristic scoring.
-            language: ISO 639-1 language code.
-            
-        Returns:
-            NormalizationResult with the normalized text and details.
-        """
+        """Normalize numbers in text to their spoken form."""
         start_time = time.time()
         text = clean_text(text)
 
@@ -180,17 +131,7 @@ class SpeechNumberNormalizer:
         audio_paths: Optional[List[str]] = None,
         language: str = "en",
     ) -> List[NormalizationResult]:
-        """
-        Normalize a batch of (text, audio) pairs.
-        
-        Args:
-            texts: List of input texts.
-            audio_paths: List of audio file paths (can contain None).
-            language: Language code (applies to all items).
-            
-        Returns:
-            List of NormalizationResult objects.
-        """
+        """Normalize a batch of (text, audio) pairs."""
         if audio_paths is None:
             audio_paths = [None] * len(texts)
 

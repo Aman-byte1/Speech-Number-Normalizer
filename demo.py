@@ -1,17 +1,6 @@
-"""
-Gradio-based interactive demo for Speech Number Normalization.
-
-Provides a web UI where users can:
-  - Enter text with numbers
-  - Upload or record audio
-  - Select a language
-  - See the normalized output with detailed candidate information
-"""
-
 import logging
 import os
 import tempfile
-
 import gradio as gr
 
 from speech_number_norm.normalizer import SpeechNumberNormalizer
@@ -106,21 +95,18 @@ def normalize_text(
                 waveform = waveform.T
             torchaudio.save(audio_path, waveform, sr)
 
-    # If audio scoring is disabled, use text-only mode
     if not use_audio_scoring:
         normalizer_to_use = SpeechNumberNormalizer(use_audio=False)
         result = normalizer_to_use.normalize(text, None, lang_code)
     else:
         result = normalizer.normalize(text, audio_path, lang_code)
 
-    # Build details markdown
     details = _build_details_md(result)
 
     return result.normalized_text, details
 
 
 def _build_details_md(result) -> str:
-    """Build a markdown report of the normalization details."""
     lines = []
     lines.append(f"### Normalization Details")
     lines.append(f"")

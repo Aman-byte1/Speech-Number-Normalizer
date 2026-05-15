@@ -1,11 +1,3 @@
-"""
-Candidate verbalization generator.
-
-Given a NumberSpan, generates multiple plausible spoken-form candidates
-using num2words and custom rules for dates, times, currencies, etc.
-Candidates are ordered by likelihood (most common first).
-"""
-
 import functools
 import re
 from typing import List, Optional
@@ -21,10 +13,8 @@ from speech_number_norm.lang_config import (
 )
 
 
-# LRU cache for num2words calls — same numbers appear frequently in large datasets
 @functools.lru_cache(maxsize=65536)
 def _cached_num2words(number, lang: str = "en", to: str = "cardinal", **kwargs) -> str:
-    """Cached wrapper around num2words to avoid recomputing identical conversions."""
     try:
         return num2words(number, lang=lang, to=to)
     except (NotImplementedError, OverflowError, ValueError, TypeError):
@@ -32,7 +22,6 @@ def _cached_num2words(number, lang: str = "en", to: str = "cardinal", **kwargs) 
 
 
 def _remove_hyphens(text: str) -> str:
-    """Replace hyphens with spaces for an alternative candidate."""
     return text.replace("-", " ")
 
 
@@ -54,31 +43,14 @@ def _add_hyphens_to_tens(text: str) -> str:
 
 
 class CandidateGenerator:
-    """
-    Generates candidate verbalizations for detected number spans.
-    
-    Each candidate is a string representing one plausible way the number
-    might be spoken. Multiple candidates are generated to account for
-    variations in speech (e.g., "twenty one" vs "twenty-one" vs
-    "one thousand and one" vs "one thousand one").
-    """
+    """Generates candidate verbalizations for detected number spans."""
 
     def generate(
         self,
         span: NumberSpan,
         language: str = "en",
     ) -> List[str]:
-        """
-        Generate candidate verbalizations for a number span.
-        
-        Args:
-            span: Detected number span with category and parsed value.
-            language: ISO 639-1 language code.
-            
-        Returns:
-            List of candidate strings, ordered by likelihood (best first).
-            Always returns at least one candidate.
-        """
+        """Generate candidate verbalizations for a number span."""
         config = get_config(language)
         lang = config.num2words_lang
 
