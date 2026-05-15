@@ -1,0 +1,2 @@
+[console_scripts]
+speech-number-norm = speech_number_norm.normalizer:main

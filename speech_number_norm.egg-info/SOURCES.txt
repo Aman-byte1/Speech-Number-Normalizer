@@ -1,0 +1,16 @@
+README.md
+setup.py
+speech_number_norm/__init__.py
+speech_number_norm/candidates.py
+speech_number_norm/detector.py
+speech_number_norm/lang_config.py
+speech_number_norm/normalizer.py
+speech_number_norm/scorer.py
+speech_number_norm/utils.py
+speech_number_norm.egg-info/PKG-INFO
+speech_number_norm.egg-info/SOURCES.txt
+speech_number_norm.egg-info/dependency_links.txt
+speech_number_norm.egg-info/entry_points.txt
+speech_number_norm.egg-info/requires.txt
+speech_number_norm.egg-info/top_level.txt
+tests/test_normalizer.py
